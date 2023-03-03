@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "proj-maas-back"
+version = "0.1.0"
+description = ""
+authors = ["Matheus Mendes <mattheus2015@yahoo.com.br>"]
+readme = "README.md"
+packages = [{include = "proj_maas_back"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.92.0"
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+mypy = "^1.0.1"
+isort = "^5.12.0"
+bandit = "^1.7.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
