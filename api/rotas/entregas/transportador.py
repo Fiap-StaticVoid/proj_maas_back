@@ -1,40 +1,55 @@
-from api.modelos.entregas.transportador import Transportador, TransportadorEntrada
+from fastapi import Depends
+from api.modelos.entregas.transportador import TransportadorSaida, TransportadorEntrada
 from fastapi.routing import APIRouter
-from uuid import uuid4
-from api.modelos import BaseRecurso
 
+from banco.repositorios import Repositorio
+from banco.tabelas.transportador import Transportador
+from uuid import UUID
 
-router = APIRouter(prefix="/transportadores", tags=["Transportadores"])
-_trasportadores = [
-    Transportador(id=uuid4(), nome="João", placa_veiculo="ABC-1234"),
-    Transportador(id=uuid4(), nome="Maria", placa_veiculo="DEF5G67"),
-]
+router = APIRouter(prefix="/transportadores", tags=["Transportador"])
+RepoTransportadores = Repositorio[TransportadorEntrada, Transportador]
+iniciar_repo_transportadores = lambda: Repositorio(TransportadorEntrada, Transportador)
 
 
 @router.post("/", status_code=201)
-async def criar_transportador(transportador: TransportadorEntrada) -> BaseRecurso:
-    _trasportadores.append(transportador)
-    return {"id": transportador.id}
+async def criar_transportador(
+    transportador: TransportadorEntrada,
+    repositorio: RepoTransportadores = Depends(iniciar_repo_transportadores),
+) -> TransportadorSaida:
+    _transportador = await repositorio.criar(transportador)
+    return TransportadorSaida(**_transportador.dict())
 
 
 @router.get("/", status_code=200)
-async def listar_transportadores() -> list[Transportador]:
-    return _trasportadores
+async def listar_transportadores(
+    repositorio: RepoTransportadores = Depends(iniciar_repo_transportadores),
+) -> list[TransportadorSaida]:
+    transportadores = await repositorio.listar()
+    return [
+        TransportadorSaida(**transportador.dict()) for transportador in transportadores
+    ]
 
 
 @router.get("/{id}", status_code=200)
-async def obter_transportador(id: int) -> Transportador:
-    return _trasportadores[id - 1]
+async def obter_transportador(
+    id: UUID, repositorio: RepoTransportadores = Depends(iniciar_repo_transportadores)
+) -> TransportadorSaida:
+    transportador = await repositorio.buscar(id)
+    return TransportadorSaida(**transportador.dict())
 
 
 @router.patch("/{id}", status_code=200)
 async def atualizar_transportador(
-    id: int, transportador: TransportadorEntrada
-) -> BaseRecurso:
-    _trasportadores[id - 1] = transportador
-    return {"id": transportador.id}
+    id: UUID,
+    transportador: TransportadorEntrada,
+    repositorio: RepoTransportadores = Depends(iniciar_repo_transportadores),
+) -> TransportadorSaida:
+    _transportador = await repositorio.atualizar(id, transportador)
+    return TransportadorSaida(**_transportador.dict())
 
 
 @router.delete("/{id}", status_code=204)
-async def remover_transportador(id: int) -> None:
-    _trasportadores.pop(id - 1)
+async def remover_transportador(
+    id: UUID, repositorio: RepoTransportadores = Depends(iniciar_repo_transportadores)
+) -> None:
+    await repositorio.deletar(id)

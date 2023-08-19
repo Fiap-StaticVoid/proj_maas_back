@@ -9,8 +9,7 @@ class TransportadorEntrada(BaseModel):
     placa_veiculo: str
 
     @validator("placa_veiculo")
-    def placa_eh_valida(cls, placa):
-
+    def placa_eh_valida(cls, placa: str):
         if any(
             (
                 match(r"^\w{3}-\d{4}$", placa),
@@ -21,5 +20,5 @@ class TransportadorEntrada(BaseModel):
         raise ValueError("Placa inválida")
 
 
-class Transportador(BaseRecurso, TransportadorEntrada):
+class TransportadorSaida(BaseRecurso, TransportadorEntrada):
     pass

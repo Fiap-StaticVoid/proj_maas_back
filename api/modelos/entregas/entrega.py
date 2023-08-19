@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -10,13 +11,13 @@ class EntregaEntrada(BaseModel):
     data_da_entrega: datetime
     produtos: list[str]
 
-    id_cliente: int
-    id_transportador: int
+    id_cliente: UUID
+    id_transportador: UUID
 
     @property
     def tempo_de_entrega(self):
         return self.data_da_entrega - self.data_da_solicitacao
 
 
-class Entrega(BaseRecurso, EntregaEntrada):
+class EntregaSaida(BaseRecurso, EntregaEntrada):
     pass
