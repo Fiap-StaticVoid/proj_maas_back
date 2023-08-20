@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, validator
 from re import match
 
@@ -7,6 +8,7 @@ from api.modelos import BaseRecurso
 class TransportadorEntrada(BaseModel):
     nome: str
     placa_veiculo: str
+    id_cliente: UUID
 
     @validator("placa_veiculo")
     def placa_eh_valida(cls, placa: str):

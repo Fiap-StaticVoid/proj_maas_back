@@ -16,7 +16,7 @@ class Operador(StrEnum):
 
 @dataclass
 class Filtro:
-    modelo: Type[Base]
+    modelo: Type[I]
     campo: str
     operador: Operador
     valor: Any
@@ -39,15 +39,23 @@ class Repositorio(Generic[M, I]):
             await sessao.commit()
             return instancia
 
-    async def buscar(self, id: UUID) -> I:
+    async def buscar(self, id: UUID, filtros: list[Filtro] | None = None) -> I:
+        if filtros is None:
+            filtros = []
+        query = select(self.tipo_instancia).where(self.tipo_instancia.id == id)
+        for filtro in filtros:
+            query = query.where(filtro.parse())
         async with abrir_sessao() as sessao:
-            return await sessao.scalar(
-                select(self.tipo_instancia).where(self.tipo_instancia.id == id)
-            )
+            return await sessao.scalar(query)
 
-    async def listar(self) -> Iterator[I]:
+    async def listar(self, filtros: list[Filtro] | None = None) -> Iterator[I]:
+        if filtros is None:
+            filtros = []
+        query = select(self.tipo_instancia)
+        for filtro in filtros:
+            query = query.where(filtro.parse())
         async with abrir_sessao() as sessao:
-            return await sessao.scalars(select(self.tipo_instancia))
+            return await sessao.scalars(query)
 
     async def deletar(self, id: UUID):
         async with abrir_sessao() as sessao:
