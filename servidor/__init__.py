@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from api.rotas.clientes.cliente import router as router_cliente
 from api.rotas.entregas.entrega import router as router_entrega
@@ -8,6 +9,13 @@ from banco import criar_banco
 
 def criar_app():
     app = FastAPI()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     @app.get("/", include_in_schema=False)
     async def root():
