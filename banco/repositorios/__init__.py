@@ -1,10 +1,12 @@
-from typing import Any, Generic, Type, TypeVar, Iterator
-from pydantic import BaseModel
-from banco import Base, abrir_sessao
-from uuid import UUID
-from sqlalchemy import select
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Any, Generic, Iterator, Type, TypeVar
+from uuid import UUID
+
+from pydantic import BaseModel
+from sqlalchemy import select
+
+from banco import Base, abrir_sessao
 
 M = TypeVar("M", bound=BaseModel)
 I = TypeVar("I", bound=Base)
@@ -24,7 +26,7 @@ class Filtro:
     def parse(self):
         match self.operador:
             case Operador.igual:
-                return self.campo == self.valor
+                return getattr(self.modelo, self.campo) == self.valor
 
 
 class Repositorio(Generic[M, I]):
